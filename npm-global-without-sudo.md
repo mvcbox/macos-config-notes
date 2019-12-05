@@ -10,23 +10,37 @@ Here is a way to install packages globally for a given user.
 mkdir "${HOME}/.npm-packages"
 ```
 
-###### 2. Indicate to `npm` where to store globally installed packages. In your `~/.npmrc` file add:
+###### 2. Tell `npm` where to store globally installed packages
 
 ```sh
-prefix=${HOME}/.npm-packages
+npm config set prefix "${HOME}/.npm-packages"
 ```
 
-###### 3. Ensure `npm` will find installed binaries and man pages. Add the following to your `.bashrc`/`.zshrc`:
+###### 3. Ensure `npm` will find installed binaries and man pages
+
+Add the following to your `.bashrc`/`.zshrc`:
 
 ```sh
 NPM_PACKAGES="${HOME}/.npm-packages"
 
-PATH="$NPM_PACKAGES/bin:$PATH"
+export PATH="$PATH:$NPM_PACKAGES/bin"
 
-# Unset manpath so we can inherit from /etc/manpath via the `manpath` command
-unset MANPATH # delete if you already modified MANPATH elsewhere in your config
-export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+# Preserve MANPATH if you already defined it somewhere in your config.
+# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
+export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
 ```
+
+If you're using `fish`, add the following to `~/.config/fish/config.fish`:
+
+```sh
+set NPM_PACKAGES "$HOME/.npm-packages"
+
+set PATH $NPM_PACKAGES/bin $PATH
+
+set MANPATH $NPM_PACKAGES/share/man $MANPATH  
+```
+
+If you have erased your MANPATH by mistake, you can restore it by running `set -Ux MANPATH (manpath -g) $MANPATH` once. Do not put this command in your `config.fish`.
 
 ---
 
